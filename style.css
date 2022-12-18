@@ -12,7 +12,7 @@ body, html {
   width: 100%;
   height: 100%;
   font-family: 'Montserrat', sans-serif;
-  background: url(../Project_startuuLandingPage/header.jpg) no-repeat center center fixed;
+  background: url(Project_startuuLandingPage/header.jpg) no-repeat center center fixed;
   background-size: cover;  /*Flexibel, dvs responsive backgroung image*/
 }
 h1{
