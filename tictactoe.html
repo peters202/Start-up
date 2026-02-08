@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>3 i Rad</title>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+    <link href="tictactoe.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="game-container">
+      <h1>3 i Rad</h1>
+      <p id="status">Spelare X:s tur</p>
+      <div class="board" id="board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+      </div>
+      <div class="scoreboard">
+        <div class="score">
+          <span class="score-label">X</span>
+          <span class="score-value" id="score-x">0</span>
+        </div>
+        <div class="score">
+          <span class="score-label">Oavgjort</span>
+          <span class="score-value" id="score-draw">0</span>
+        </div>
+        <div class="score">
+          <span class="score-label">O</span>
+          <span class="score-value" id="score-o">0</span>
+        </div>
+      </div>
+      <button id="restart" class="btn-restart">Starta om</button>
+      <a href="index.html" class="back-link">Tillbaka till startsidan</a>
+    </div>
+    <script src="tictactoe.js"></script>
+  </body>
+</html>
