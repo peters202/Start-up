@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>3 i Rad</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .game-container {
+        text-align: center;
+        padding: 2rem;
+      }
+
+      h1 {
+        color: #e94560;
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+      }
+
+      #status {
+        color: #eee;
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+        min-height: 2rem;
+      }
+
+      .board {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        width: 320px;
+        height: 320px;
+        margin: 0 auto 1.5rem;
+      }
+
+      .cell {
+        background: rgba(255, 255, 255, 0.08);
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 3rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.15s;
+        user-select: none;
+      }
+
+      .cell:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: scale(1.04);
+      }
+
+      .cell.x {
+        color: #e94560;
+      }
+
+      .cell.o {
+        color: #38d574;
+      }
+
+      .cell.win {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: gold;
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+      }
+
+      .scoreboard {
+        display: flex;
+        justify-content: center;
+        gap: 2.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .score {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .score-label {
+        color: #aaa;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+
+      .score-value {
+        color: #fff;
+        font-size: 2rem;
+        font-weight: 700;
+      }
+
+      .btn-restart {
+        background: #e94560;
+        color: #fff;
+        border: none;
+        padding: 0.8rem 2.5rem;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.15s;
+      }
+
+      .btn-restart:hover {
+        background: #c73650;
+        transform: scale(1.05);
+      }
+
+      @media (max-width: 400px) {
+        .board {
+          width: 270px;
+          height: 270px;
+        }
+        h1 {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="game-container">
+      <h1>3 i Rad</h1>
+      <p id="status">Spelare X:s tur</p>
+      <div class="board" id="board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+      </div>
+      <div class="scoreboard">
+        <div class="score">
+          <span class="score-label">X</span>
+          <span class="score-value" id="score-x">0</span>
+        </div>
+        <div class="score">
+          <span class="score-label">Oavgjort</span>
+          <span class="score-value" id="score-draw">0</span>
+        </div>
+        <div class="score">
+          <span class="score-label">O</span>
+          <span class="score-value" id="score-o">0</span>
+        </div>
+      </div>
+      <button id="restart" class="btn-restart">Starta om</button>
+    </div>
+    <script>
+      (function () {
+        var board = document.getElementById('board');
+        var status = document.getElementById('status');
+        var restartBtn = document.getElementById('restart');
+        var scoreX = document.getElementById('score-x');
+        var scoreO = document.getElementById('score-o');
+        var scoreDraw = document.getElementById('score-draw');
+
+        var WIN_COMBOS = [
+          [0, 1, 2], [3, 4, 5], [6, 7, 8],
+          [0, 3, 6], [1, 4, 7], [2, 5, 8],
+          [0, 4, 8], [2, 4, 6]
+        ];
+
+        var cells;
+        var currentPlayer = 'X';
+        var gameBoard = Array(9).fill('');
+        var gameOver = false;
+        var scores = { X: 0, O: 0, draw: 0 };
+
+        function init() {
+          cells = document.querySelectorAll('.cell');
+          cells.forEach(function (cell) {
+            cell.textContent = '';
+            cell.className = 'cell';
+            cell.addEventListener('click', handleClick);
+          });
+          gameBoard = Array(9).fill('');
+          currentPlayer = 'X';
+          gameOver = false;
+          status.textContent = 'Spelare X:s tur';
+        }
+
+        function handleClick(e) {
+          var index = parseInt(e.target.dataset.index);
+          if (gameBoard[index] !== '' || gameOver) return;
+
+          gameBoard[index] = currentPlayer;
+          e.target.textContent = currentPlayer;
+          e.target.classList.add(currentPlayer.toLowerCase());
+
+          var winCombo = checkWin(currentPlayer);
+          if (winCombo) {
+            gameOver = true;
+            status.textContent = 'Spelare ' + currentPlayer + ' vinner!';
+            scores[currentPlayer]++;
+            updateScoreboard();
+            highlightWin(winCombo);
+            return;
+          }
+
+          if (gameBoard.every(function (cell) { return cell !== ''; })) {
+            gameOver = true;
+            status.textContent = 'Oavgjort!';
+            scores.draw++;
+            updateScoreboard();
+            return;
+          }
+
+          currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+          status.textContent = 'Spelare ' + currentPlayer + ':s tur';
+        }
+
+        function checkWin(player) {
+          for (var i = 0; i < WIN_COMBOS.length; i++) {
+            var combo = WIN_COMBOS[i];
+            if (
+              gameBoard[combo[0]] === player &&
+              gameBoard[combo[1]] === player &&
+              gameBoard[combo[2]] === player
+            ) {
+              return combo;
+            }
+          }
+          return null;
+        }
+
+        function highlightWin(combo) {
+          combo.forEach(function (index) {
+            cells[index].classList.add('win');
+          });
+        }
+
+        function updateScoreboard() {
+          scoreX.textContent = scores.X;
+          scoreO.textContent = scores.O;
+          scoreDraw.textContent = scores.draw;
+        }
+
+        restartBtn.addEventListener('click', init);
+        init();
+      })();
+    </script>
+  </body>
+</html>
